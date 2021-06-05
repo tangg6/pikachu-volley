@@ -1,7 +1,7 @@
 import pygame
 import pygame_menu
 from pygame.locals import *
-#from game import Game
+from ball import Ball
 
 pygame.init()
 
@@ -32,7 +32,7 @@ def recieve_data():
     while True:
         data = server.recv(1024).decode()
         data = data.split('-')
-        print(data)
+        #print(data)
         x1, y1 = float(data[0]), float(data[1])
 
 create_thread(recieve_data)
@@ -46,21 +46,29 @@ pygame.display.set_caption("Ball") #caption
 clock = pygame.time.Clock() 
 y = surface.get_height()-70
 
-x1, y1 = 375, 520
+ball = Ball()
+
+x1, y1 = 375, 490
 
 def start_the_game():
     # Main game
 
     running = True
-    x2, y2 = 675, 520
+    x2, y2 = 675, 500
 
     move = 20
     jump = False
     jump_count = 10
     grav = 0.6
 
+    surface = pygame.display.set_mode(size_game)
+    bg = pygame.image.load("pikachu_background.png")
+    
     while running:
-        surface = pygame.display.set_mode(size_game)
+        
+        surface.blit(bg, (0, 0))
+        print("check")
+        
         keyspressed = pygame.key.get_pressed()
         for event in pygame.event.get(): # User did something
             #print(event)    # Useful debugging tip    
@@ -70,6 +78,7 @@ def start_the_game():
                 running = False             
         if keyspressed[ord("a")]:
             x2 -= move
+            print("can press")
         if keyspressed[ord("d")]:
             x2 += move
         
@@ -83,20 +92,20 @@ def start_the_game():
                     neg = -1
                 y2 = y2 - (jump_count**2)* grav * neg
                 jump_count -= 1
-                #print(jump_count)
-                print("y = ",y2)
             else:
                 jump = False
                 jump_count = 10
             
         if y2 < 0: 
             y2 = 0
-        if y2 >= surface.get_height()-80: 
-            y2 = surface.get_height()-80
+        if y2 >= surface.get_height()-110: 
+            y2 = surface.get_height()-110
         if x2 < 400: 
             x2 = 400
         if x2 >= surface.get_width()-50: 
             x2 = surface.get_width()-50   
+        
+
         
         player2 = Rect(x2, y2, 50, 80)
         pygame.draw.rect(surface, (0,0,255), player2)   
@@ -107,7 +116,7 @@ def start_the_game():
         send_data = '{}-{}'.format(x2, y2).encode()       # Use format string to enable encode function
         server.send(send_data)
 
-
+        
         pygame.display.update()                         # Actually does the screen update
         clock.tick(30)                                  # Run the game at 25 frames per second  
         

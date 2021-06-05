@@ -29,6 +29,8 @@ server.bind((HOST, PORT))
 server.listen(1)
 print("waiting for connection...")
 conn, addr = server.accept()
+print('Client connected by ', str(addr))
+
 
 #------------------------- Recieve data from client --------------------------------
 
@@ -37,7 +39,7 @@ def recieve_data():
     while True:
         data = conn.recv(1024).decode()
         data = data.split('-')
-        print(data)
+        #print(data)
         x2, y2 = float(data[0]), float(data[1])
 
 #------------------------ Another thread doing about server ------------------------------
@@ -53,21 +55,58 @@ pygame.display.set_caption("Ball") #caption
 clock = pygame.time.Clock() 
 y = surface.get_height()-70
 
-x2, y2 = 675, 520
+x2, y2 = 675, 490
+
+def ball(surface):
+    black = (0, 0, 0)
+
+    FPS = 60
+
+    clock = pygame.time.Clock()
+    block_size = 20
+    x = 5
+    y = 0
+    grav = 0.5
+    friction_x = 1
+    pos_x = 40
+    pos_y = 40
+
+    pos_x += x
+    pos_y += y
+
+    if pos_y + block_size > size_game[1] and y <= 2.0:
+        x = 0
+        y = 0
+        grav = 0
+        friction_x = 0
+    if pos_y + block_size > size_game[1] or pos_y < 20:
+        y = -y
+        print(pos_y)
+    if pos_x + block_size > size_game[0] or pos_x < 20:
+        x = -(x*friction_x)
+
+    # DRAW
+    pygame.draw.circle(surface, black,(pos_x, pos_y,), block_size)
+    clock.tick(FPS)
+    y += grav
 
 def start_the_game():
     # Main game
 
     running = True
-    x1, y1 = 375, 520
+    x1, y1 = 375, 490
 
     move = 20
     jump = False
     jump_count = 10
     grav = 0.6
 
+    surface = pygame.display.set_mode(size_game)
+    bg = pygame.image.load("pikachu_background.png")
+
     while running:
-        surface = pygame.display.set_mode(size_game)
+        ball(surface)
+        surface.blit(bg, (0, 0))
         keyspressed = pygame.key.get_pressed()
         for event in pygame.event.get(): # User did something
             #print(event)    # Useful debugging tip    
@@ -90,16 +129,14 @@ def start_the_game():
                     neg = -1
                 y1 = y1 - (jump_count**2)* grav * neg
                 jump_count -= 1
-                #print(jump_count)
-                print("y = ",y1)
             else:
                 jump = False
                 jump_count = 10
             
         if y1 < 0: 
             y1 = 0
-        if y1 >= surface.get_height()-80: 
-            y1 = surface.get_height()-80
+        if y1 >= surface.get_height()-110: 
+            y1 = surface.get_height()-110
         if x1 < 0: 
             x1 = 0
         if x1 >= surface.get_width()-450: 
