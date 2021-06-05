@@ -6,7 +6,7 @@ from pygame.locals import *
 pygame.init()
 
 import os
-os.environ['SDL_VIDEO_WINDOW_POS'] = '200,200'
+os.environ['SDL_VIDEO_WINDOW_POS'] = '1000,200'
 
 import threading
 
@@ -33,9 +33,7 @@ def recieve_data():
         data = server.recv(1024).decode()
         data = data.split('-')
         print(data)
-        x1, y1 = int(data[0]), int(data[1])
-        
-        
+        x1, y1 = float(data[0]), float(data[1])
 
 create_thread(recieve_data)
 
@@ -48,18 +46,18 @@ pygame.display.set_caption("Ball") #caption
 clock = pygame.time.Clock() 
 y = surface.get_height()-70
 
+x1, y1 = 375, 520
 
 def start_the_game():
     # Main game
 
     running = True
-    x = 675
-    y = 520
+    x2, y2 = 675, 520
 
-    x1, y1 = 375,520
     move = 20
     jump = False
-    grav = 10
+    jump_count = 10
+    grav = 0.6
 
     while running:
         surface = pygame.display.set_mode(size_game)
@@ -71,42 +69,42 @@ def start_the_game():
         if keyspressed[ord("\x1b")]: # Pressing the x Key will quit the game
                 running = False             
         if keyspressed[ord("a")]:
-            x -= move
+            x2 -= move
         if keyspressed[ord("d")]:
-            x += move
-        print("x = ",x)
+            x2 += move
+        
         if not(jump):
             if keyspressed[ord("w")] or keyspressed[ord(" ")]:
                 jump = True
         else:
-            if grav >= -10:
+            if jump_count >= -10:
                 neg = 1
-                if grav < 0:
+                if jump_count < 0:
                     neg = -1
-                y = y - (grav**2)* 0.6 * neg
-                grav -= 1
-                #print(grav)
-                print("y = ",y)
+                y2 = y2 - (jump_count**2)* grav * neg
+                jump_count -= 1
+                #print(jump_count)
+                print("y = ",y2)
             else:
                 jump = False
-                grav = 10
+                jump_count = 10
             
-        if y < 0: 
-            y = 0
-        if y >= surface.get_height()-80: 
-            y = surface.get_height()-80
-        if x < 0: 
-            x = 0
-        if x >= surface.get_width()-450: 
-            x = surface.get_width()-450   
+        if y2 < 0: 
+            y2 = 0
+        if y2 >= surface.get_height()-80: 
+            y2 = surface.get_height()-80
+        if x2 < 400: 
+            x2 = 400
+        if x2 >= surface.get_width()-50: 
+            x2 = surface.get_width()-50   
         
-        player = Rect(x, y, 50, 80)
-        pygame.draw.rect(surface, (0,0,255), player)   
+        player2 = Rect(x2, y2, 50, 80)
+        pygame.draw.rect(surface, (0,0,255), player2)   
 
         player1 = Rect(x1, y1, 50, 80)
         pygame.draw.rect(surface, (204,0,255), player1)
 
-        send_data = '{}-{}'.format(x, y).encode()       # Use format string to enable encode function
+        send_data = '{}-{}'.format(x2, y2).encode()       # Use format string to enable encode function
         server.send(send_data)
 
 
