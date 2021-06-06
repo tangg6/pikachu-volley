@@ -1,4 +1,5 @@
 import pygame
+from pygame.draw import circle, rect
 import pygame_menu
 from pygame.locals import *
 #from game import Game
@@ -31,7 +32,6 @@ print("waiting for connection...")
 conn, addr = server.accept()
 print('Client connected by ', str(addr))
 
-
 #------------------------- Recieve data from client --------------------------------
 
 def recieve_data():
@@ -53,42 +53,8 @@ pygame.display.set_caption("Ball") #caption
 # icon = pygame.image.load(os.path.join('games.png'))
 # pygame.display.set_icon (icon)
 clock = pygame.time.Clock() 
-y = surface.get_height()-70
 
 x2, y2 = 675, 490
-
-def ball(surface):
-    black = (0, 0, 0)
-
-    FPS = 60
-
-    clock = pygame.time.Clock()
-    block_size = 20
-    x = 5
-    y = 0
-    grav = 0.5
-    friction_x = 1
-    pos_x = 40
-    pos_y = 40
-
-    pos_x += x
-    pos_y += y
-
-    if pos_y + block_size > size_game[1] and y <= 2.0:
-        x = 0
-        y = 0
-        grav = 0
-        friction_x = 0
-    if pos_y + block_size > size_game[1] or pos_y < 20:
-        y = -y
-        print(pos_y)
-    if pos_x + block_size > size_game[0] or pos_x < 20:
-        x = -(x*friction_x)
-
-    # DRAW
-    pygame.draw.circle(surface, black,(pos_x, pos_y,), block_size)
-    clock.tick(FPS)
-    y += grav
 
 def start_the_game():
     # Main game
@@ -101,11 +67,36 @@ def start_the_game():
     jump_count = 10
     grav = 0.6
 
+
+
     surface = pygame.display.set_mode(size_game)
     bg = pygame.image.load("pikachu_background.png")
 
+
+
+
+    block_size = 60
+    x = 5
+    y = 0
+    grav = 0.5
+    friction_x = 1
+    pos_x = 40
+    pos_y = 40
+
+
+
+
+
+
+
+
     while running:
-        ball(surface)
+
+        #------------------------------------ Player ----------------------
+        player1 = Rect(x1, y1, 50, 80)
+        player2 = Rect(x2, y2, 50, 80)
+
+
         surface.blit(bg, (0, 0))
         keyspressed = pygame.key.get_pressed()
         for event in pygame.event.get(): # User did something
@@ -132,26 +123,76 @@ def start_the_game():
             else:
                 jump = False
                 jump_count = 10
-            
+
+                    #-------- Detect player won't out of size game -----------
         if y1 < 0: 
             y1 = 0
         if y1 >= surface.get_height()-110: 
             y1 = surface.get_height()-110
-        if x1 < 0: 
+        if x1 < 0:  
             x1 = 0
         if x1 >= surface.get_width()-450: 
             x1 = surface.get_width()-450   
         
-        player1 = Rect(x1, y1, 50, 80)
-        pygame.draw.rect(surface, (204,0,255), player1)   
 
-        player2 = Rect(x2, y2, 50, 80)
-        pygame.draw.rect(surface, (0,0,255  ), player2)
 
-        send_data = '{}-{}'.format(x1, y1).encode()       # Use format string to enable encode function
-        conn.send(send_data)
+
+
+
+
+        # --------------------- Ball -----------------------------
+        ball = Rect(pos_x,pos_y,block_size,block_size)
+
+        pos_x += x
+        pos_y += y
+
+        if pos_y + block_size > size_game[1] and y <= 2.0:
+            x = 0
+            y = 0
+            grav = 0
+            friction_x = 0
+        if pos_y + block_size > size_game[1] or pos_y < 20: 
+            y = -y-grav
+            print(pos_y)
+        if pos_x + block_size > size_game[0] or pos_x < 20:
+            x = -(x*friction_x)
+
+
+        # ---------------- Ball hit player ------------------
+        
+        if ball.colliderect(player1) or ball.colliderect(player2):
+            x += 1
+            y = -y-grav
 
         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        # ------------------------ DRAW --------------------------
+        pygame.draw.ellipse(surface, (0,0,0),ball)
+        y += grav
+
+        
+        pygame.draw.rect(surface, (204,0,255), player1)   
+
+        
+        pygame.draw.rect(surface, (0,0,255  ), player2)
+
+        send_data = '{}-{}-{}-{}'.format(x1, y1,pos_x,pos_y).encode()       # Use format string to enable encode function
+        conn.send(send_data)
 
         pygame.display.update()                         # Actually does the screen update
         clock.tick(30)                                  # Run the game at 25 frames per second  

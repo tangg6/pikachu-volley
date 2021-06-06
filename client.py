@@ -1,7 +1,6 @@
 import pygame
 import pygame_menu
 from pygame.locals import *
-from ball import Ball
 
 pygame.init()
 
@@ -28,12 +27,13 @@ server.connect((HOST,PORT)) # เชื่อมต่อ
 #------------------------- Recieve data from client --------------------------------
 
 def recieve_data():
-    global x1,y1
+    global x1,y1,pos_x,pos_y
     while True:
         data = server.recv(1024).decode()
         data = data.split('-')
         #print(data)
         x1, y1 = float(data[0]), float(data[1])
+        pos_x, pos_y = float(data[2]), float(data[3])
 
 create_thread(recieve_data)
 
@@ -44,11 +44,11 @@ pygame.display.set_caption("Ball") #caption
 # icon = pygame.image.load(os.path.join('games.png'))
 # pygame.display.set_icon (icon)
 clock = pygame.time.Clock() 
-y = surface.get_height()-70
-
-ball = Ball()
 
 x1, y1 = 375, 490
+
+pos_x, pos_y = 40, 40
+block_size = 60
 
 def start_the_game():
     # Main game
@@ -61,13 +61,18 @@ def start_the_game():
     jump_count = 10
     grav = 0.6
 
+    
+
     surface = pygame.display.set_mode(size_game)
     bg = pygame.image.load("pikachu_background.png")
     
     while running:
         
+        player2 = Rect(x2, y2, 50, 80)
+        player1 = Rect(x1, y1, 50, 80)
+        ball = Rect(pos_x,pos_y,block_size,block_size)
+        
         surface.blit(bg, (0, 0))
-        print("check")
         
         keyspressed = pygame.key.get_pressed()
         for event in pygame.event.get(): # User did something
@@ -78,7 +83,6 @@ def start_the_game():
                 running = False             
         if keyspressed[ord("a")]:
             x2 -= move
-            print("can press")
         if keyspressed[ord("d")]:
             x2 += move
         
@@ -105,12 +109,12 @@ def start_the_game():
         if x2 >= surface.get_width()-50: 
             x2 = surface.get_width()-50   
         
-
+        pygame.draw.ellipse(surface, (0,0,0),ball)
         
-        player2 = Rect(x2, y2, 50, 80)
+        
         pygame.draw.rect(surface, (0,0,255), player2)   
 
-        player1 = Rect(x1, y1, 50, 80)
+        
         pygame.draw.rect(surface, (204,0,255), player1)
 
         send_data = '{}-{}'.format(x2, y2).encode()       # Use format string to enable encode function
