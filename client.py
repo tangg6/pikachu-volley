@@ -149,11 +149,11 @@ def start_the_game():
         
 
         # ------------------------ Display score ------------------------------
-        font = pygame.font.Font(None, 80)
+        font = pygame.font.Font(os.path.join('src', 'GenericMobileSystem.ttf'), 50)
         text_score_player1 = font.render(score_player1, False, (255, 0, 0))
         text_score_player2 = font.render(score_player2, False, (255, 0, 0))      
-        surface.blit(text_score_player1, (60,60))
-        surface.blit(text_score_player2, (740,60))
+        surface.blit(text_score_player1, (180,60))
+        surface.blit(text_score_player2, (620,60))
 
 
         # ------------------------ Send data to server ------------------------
