@@ -80,9 +80,9 @@ def start_the_game():
 
     # Detail of ball
     block_size = 60         # Size of ball
-    x = 5                   # Initial speed of ball in x 
-    y = 0                   # Initial speed of ball in y
-    friction_x = 1          # Friction when ball bouncing
+    x = 5                   # Initial speed of ball in x, x > 0 go right,x < 0 go left
+    y = 0                   # Initial speed of ball in y, y > 0 go down, y < 0 go up
+    reaction_x = 1          # Reaction when ball bouncing
     pos_x,pos_y  = 40, 40   # Initial position of ball
     
     score_player1 = 0       # Initial score of player 1
@@ -104,7 +104,7 @@ def start_the_game():
         player2 = Rect(x2, y2, 50, 80)
 
 
-        # ---------------------- Input background ----------
+        # ---------------------- Display background ----------
         surface.blit(bg, (0, 0))
 
 
@@ -123,7 +123,7 @@ def start_the_game():
             or keyspressed[ord(" ")]:
                 jump = True                         # If jump = True we will calculate Gravity
         else:
-            if jump_count >= -10:
+            if jump_count >= -10:                   # Calculate projectile
                 neg = 1
                 if jump_count < 0:
                     neg = -1
@@ -135,13 +135,13 @@ def start_the_game():
 
 
         #---------------- Detect player won't out of bound --------------
-        if y1 < 0: 
+        if y1 < 0:                                  # If player1 go to highest 
             y1 = 0
-        if y1 >= surface.get_height()-110: 
+        if y1 >= surface.get_height()-110:          # If player1 going to lowest 
             y1 = surface.get_height()-110
-        if x1 < 0:  
+        if x1 < 0:                                  # If player1 going to leftest
             x1 = 0
-        if x1 >= surface.get_width()-475: 
+        if x1 >= surface.get_width()-475:           # If player1 going to rightest
             x1 = surface.get_width()-475   
 
         
@@ -152,28 +152,28 @@ def start_the_game():
         pos_y += y                              # Make the ball moving in y
 
 
-        # ---------------------- The ball hit the wall --------------------
-        if pos_y + block_size > g_height and y <= 2.0: 
-            x = 0
-            y = 0
-            grav = 0
-            friction_x = 0
-        
-        if pos_y < 0:                           # If the ball hit the top frame
-            y = -y-grav
-
+        # ---------------------- The ball hit the wall --------------------       
+        if pos_y < 0:                                   # If the ball hit the top frame
+            y = -y
             
         if pos_x + block_size > g_width or \
-            pos_x < 0:                        # If the ball hit the left or right wall
-            x = -(x*friction_x)
+           pos_x < 0:                                   # If the ball hit the left or right wall
+            x = -(x*reaction_x)
         
         if pos_x + block_size == g_width // 2 and \
-           pos_y + block_size > g_height // 2:
-            x = -(x*friction_x)
+           pos_y + block_size > 355 and \
+           x >= 0:                                      # If the ball float from left hit the net
+            x = -(x*reaction_x)
+    
+        if pos_x  == g_width//2 and \
+           pos_y + block_size > 355 and \
+           x <= 0:                                      # If the ball float from right hit the net
+            x = -(x*reaction_x) 
+            
         if pos_x + block_size == g_width // 2 and \
-           pos_y + block_size == g_height // 2:
+           pos_y + block_size == 355:                   # If the ball hit the center of the net
             y = -y-grav
-        
+
 
         # --------------------- Ball hit the player floor ------------------------
         # when the player 2 win, the ball will release in player 2 side
@@ -182,7 +182,7 @@ def start_the_game():
             
             # Reset detail of the ball and release  the ball in player 2 side
             x, y = -5, 0                
-            friction_x = 1              
+            reaction_x = 1              
             pos_x, pos_y = 700, 40
 
             # Plus score to player 2 
@@ -195,7 +195,7 @@ def start_the_game():
 
             # Reset detail of the ball and release the ball in player 1 side
             x, y = 5, 0
-            friction_x = 1
+            reaction_x = 1
             pos_x, pos_y = 40, 40
 
             # Plus score to player 1
@@ -204,8 +204,10 @@ def start_the_game():
         
 
         # ---------------- Ball hit player ------------------
-        if ball.colliderect(player1) and y >= 0 or \
-           ball.colliderect(player2) and y >= 0:
+        if ball.colliderect(player1) and y >= 0:
+            y = -y-grav
+
+        if ball.colliderect(player2) and y >= 0:
             y = -y-grav
 
 
