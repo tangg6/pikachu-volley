@@ -166,7 +166,9 @@ def start_the_game():
         
 #------------------------ Menu before enter to the game --------------------------
 menu_widgth, menu_height = 400, 250
-menu = pygame_menu.Menu('Pikachu',menu_widgth,menu_height ,theme = pygame_menu.themes.THEME_DARK)
+mytheme = pygame_menu.themes.THEME_SOLARIZED.copy()
+mytheme.title_background_color=(230, 242, 255)
+menu = pygame_menu.Menu('Pikachu',menu_widgth,menu_height ,theme = mytheme)
 menu.add.button('Play', start_the_game)
 menu.add.button('Quit', pygame_menu.events.EXIT)
 menu.mainloop(surface)

@@ -72,7 +72,7 @@ def start_the_game():
     # Import background in to game
     surface = pygame.display.set_mode(size_game)
     bg = pygame.image.load(os.path.join('src','pikachu_background.png'))
-
+    
     # Import image of player, ball
     img_ball = pygame.image.load(os.path.join('src','ball.png'))
     img_player1 = pygame.image.load(os.path.join('src','pika.png'))
@@ -187,6 +187,13 @@ def start_the_game():
 
             # Plus score to player 2 
             score_player2 += 1
+
+            # If score player 2 = 10 ; stop ball 
+            if score_player2 == 5:
+                x, y = 0, 0
+                grav = 0
+                score_player2 = "Win!"
+                score_player1 = "Lose!"
             print("Player1 lose")
         
         # when the player 1 win, the ball will release in player 1 side
@@ -200,6 +207,11 @@ def start_the_game():
 
             # Plus score to player 1
             score_player1 += 1
+            if score_player1 == 5:
+                x, y = 0, 0
+                grav = 0
+                score_player1 = "Win!"
+                score_player2 = "Lose!"
             print("Player2 lose")
         
 
@@ -240,8 +252,9 @@ def start_the_game():
 
 #------------------------ Menu before enter to the game --------------------------
 menu_widgth, menu_height = 400, 250
-menu = pygame_menu.Menu('Pikachu',menu_widgth,menu_height ,theme = pygame_menu.themes.THEME_DARK)
+mytheme = pygame_menu.themes.THEME_SOLARIZED.copy()
+mytheme.title_background_color=(230, 242, 255)
+menu = pygame_menu.Menu('Pikachu',menu_widgth,menu_height ,theme = mytheme)
 menu.add.button('Play', start_the_game)
 menu.add.button('Quit', pygame_menu.events.EXIT)
 menu.mainloop(surface)
-
